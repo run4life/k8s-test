@@ -65,5 +65,5 @@ func ApplyService(clientset kubernetes.Clientset, new_service core_v1.Service) {
 		}
 	}
 
-	fmt.Printf("apply service %s success!", service.Name)
+	fmt.Printf("apply service %s success!\n", service.Name)
 }

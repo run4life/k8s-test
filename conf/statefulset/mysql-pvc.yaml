@@ -1,0 +1,11 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mysqlstorageclassrbdpvc
+spec:
+  accessModes:
+      - ReadWriteOnce #只能指定ReadWriteOnce或者ReadOnlyMany
+  resources:
+      requests:
+        storage: 1Gi
+  storageClassName: defaultstorageclass #此处需要指定storageClassName为上一步的storageclass的name

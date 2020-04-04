@@ -42,7 +42,7 @@ func ReadDeploymentYaml(filename string) apps_v1.Deployment {
 	return deployment
 }
 
-func ApplyDeployment(clientset kubernetes.Clientset, deployment apps_v1.Deployment) {
+func ApplyDeployment(clientset kubernetes.Clientset, deployment apps_v1.Deployment) bool {
 	var namespace string
 	if deployment.Namespace != "" {
 		namespace = deployment.Namespace
@@ -55,23 +55,23 @@ func ApplyDeployment(clientset kubernetes.Clientset, deployment apps_v1.Deployme
 	if err != nil {
 		if !errors.IsNotFound(err) {
 			fmt.Println(err)
-			return
+			return false
 		}
 		// 不存在则创建
 		_, err = clientset.AppsV1().Deployments(namespace).Create(context.TODO(), &deployment, meta_v1.CreateOptions{})
 		if err != nil {
 			fmt.Println(err)
-			return
+			return false
 		}
 	} else { // 已存在则更新
 		_, err = clientset.AppsV1().Deployments(namespace).Update(context.TODO(), &deployment, meta_v1.UpdateOptions{})
 		if err != nil {
 			fmt.Println(err)
-			return
+			return false
 		}
 	}
-
-	fmt.Printf("apply deployment %s success!\n", deployment.Name)
+	fmt.Printf("Apply deployment %s success!\n", deployment.Name)
+	return true
 }
 
 func DeleteDeployment(clientset kubernetes.Clientset, deployment apps_v1.Deployment) {

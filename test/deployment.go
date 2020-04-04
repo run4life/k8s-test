@@ -1,31 +1,44 @@
-package deployment
+package test
 
 import (
 	"fmt"
 	"k8s-test/common"
+	"time"
 
+	apps_v1 "k8s.io/api/apps/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
-func TestDeployment(clientset kubernetes.Clientset) {
-	deployment := common.ReadDeploymentYaml("./conf/nginx.yaml")
-	sum := 0
+func checkdeploymentstatus(clientset kubernetes.Clientset, deployment apps_v1.Deployment) {
+	i := 0
 	for {
-		//deployment := common.ReadDeploymentYaml("./conf/nginx.yaml")
-		sum++
-		if sum > 100 {
-			break
+		select {
+		case <-time.After(time.Second * time.Duration(2)):
+			i++
+			if i == 60 {
+				fmt.Println("check deployment status timeout!")
+				goto Loop
+			}
 		}
-		fmt.Println(sum)
-		//name := deployment.ObjectMeta.Name
-		//deployment.ObjectMeta.Name = name + strconv.Itoa(sum)
-		//fmt.Println(deployment.ObjectMeta.Name)
-		//common.ApplyDeployment(clientset, deployment)
+		fmt.Println("Check deployment status")
+		success, _, _ := common.GetDeploymentStatus(clientset, deployment)
+		if success {
+			fmt.Println("Deployment status is OK!")
+			goto Loop
+		}
 	}
-	//common.ApplyDeployment(clientset, deployment)
-	success, reasons, err := common.GetDeploymentStatus(clientset, deployment)
-	fmt.Println(success)
-	fmt.Println(reasons)
-	fmt.Println(err)
-	common.PrintDeploymentStatus(clientset, deployment)
+Loop:
+	fmt.Println("Check finish")
+}
+
+func deploymentJob(clientset kubernetes.Clientset) {
+	fmt.Println("Create One deployment")
+	deployment := common.ReadDeploymentYaml("./conf/nginx.yaml")
+	common.ApplyDeployment(clientset, deployment)
+	checkdeploymentstatus(clientset, deployment)
+}
+
+func DeploymentTestCase(clientset kubernetes.Clientset) {
+	deploymentJob(clientset)
+
 }

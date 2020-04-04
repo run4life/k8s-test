@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	workerNumMax     = 10000
-	workerNumDefault = 20
+	workerNumMax     = 100
+	workerNumDefault = 5
 )
 
 type WorkPool struct {

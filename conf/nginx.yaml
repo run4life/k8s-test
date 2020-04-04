@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx123
+  name: nginx
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: nginx123
+      app: nginx
   template:
     metadata:
       labels:
-        app: nginx123
+        app: nginx
     spec:
       containers:
-        - name: nginx123
+        - name: nginx
           image: 172.30.120.161/google_containers/nginx:new
           ports:
             - containerPort: 80

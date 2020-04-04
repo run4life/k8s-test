@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysqlautopvc
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mysqlautopvc
+  serviceName: "mysqlautopvc"
+  template:
+    metadata:
+      labels:
+        app: mysqlautopvc
+    spec:
+      containers:
+      - image: 172.30.120.161/cloudmanager/mariadb:10.3.12
+        name: mysql
+        env:
+          # Use secret in real usage
+        - name: MYSQL_ROOT_PASSWORD
+          value: password
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysqlstorageclassrbdpvc
+          mountPath: /var/lib/mysql
+      imagePullSecrets:
+        - name: gypregsecret
+  volumeClaimTemplates:                       
+  - metadata:
+      name: mysqlstorageclassrbdpvc
+      annotations:  #这是指定storageclass
+        volume.beta.kubernetes.io/storage-class: defaultstorageclass
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
